@@ -1,71 +1,43 @@
-# Issue Digest
+# Issue Digest for VS Code
 
-Automatically fetch, summarize, and generate comprehensive reports from GitHub repository issues using GitHub Copilot. Gain quick insights into customer feedback and project health.
+**Turn GitHub Issue chaos into clear, actionable insights.**
 
-## Features
+Issue Digest leverages the power of **GitHub Copilot** to automatically fetch, analyze, and summarize the discussions happening in your GitHub repository. Stop drowning in notifications and start understanding your community and project health at a glance.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+![Issue Digest in Action](./resources/screenshot.png)
 
-For example if there is an image subfolder under your extension project workspace:
+## Why Issue Digest?
 
-\!\[feature X\]\(images/feature-x.png\)
+*   **🚀 Save Hours of Reading**: Instantly get the gist of long, complex issue threads without reading every comment.
+*   **💡 Spot Trends Fast**: Identify recurring bugs, feature requests, and sentiment shifts across your user base.
+*   **📊 Effortless Reporting**: Generate professional status reports and digests with a single click—perfect for stand-ups and stakeholder updates.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Key Features
+
+*   **AI-Powered Summaries**: Intelligent condensation of issue threads using GitHub Copilot.
+*   **One-Click Reports**: Generate a comprehensive digest of open issues, recent activity, and hot topics.
+*   **Seamless Integration**: Works directly within VS Code, connecting securely to your GitHub repositories.
+
+## How to Use
+
+1.  Open the **Issue Digest** view in the Activity Bar.
+2.  Fill up the repositories.
+3.  Click **"Generate Report"**.
+4.  View the summarized insights right in your editor!
+
+*(See the screenshot above for a quick guide)*
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
+*   VS Code ^1.106.0
+*   GitHub Copilot access
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
+*   🎉 Initial release!
+*   Basic issue fetching and summarization.
 
-Initial release of ...
 
-### 1.0.1
 
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
