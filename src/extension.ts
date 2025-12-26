@@ -5,7 +5,7 @@ import { runChat, selectDefaultChatModel, truncateForPrompt } from './lm';
 import { IssueSummaryViewProvider, type ExtensionProgressMessage } from './webview';
 
 export function activate(context: vscode.ExtensionContext) {
-	const disposable = vscode.commands.registerCommand('github-issue-summary.generateIssueReport', async () => {
+	const disposable = vscode.commands.registerCommand('issue-digest.generateIssueReport', async () => {
 		await generateIssueReport();
 	});
 	context.subscriptions.push(disposable);

@@ -1,7 +1,7 @@
 {
-  "name": "github-issue-summary",
-  "displayName": "GitHub Issue Summary",
-  "description": "Generate customer feedback report from issues in GitHub repos by utilizing GitHub Copilot.",
+  "name": "issue-digest",
+  "displayName": "Issue Digest",
+  "description": "Automatically fetch, summarize, and generate comprehensive reports from GitHub repository issues using GitHub Copilot. Gain quick insights into customer feedback and project health.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.107.0"
@@ -13,23 +13,23 @@
   "contributes": {
     "commands": [
       {
-        "command": "github-issue-summary.generateIssueReport",
-        "title": "GitHub Issue Summary: Generate Report"
+        "command": "issue-digest.generateIssueReport",
+        "title": "Issue Digest: Generate Report"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "github-issue-summary",
-          "title": "Issue Summary",
+          "id": "issue-digest",
+          "title": "Issue Digest",
           "icon": "resources/activitybar-icon.svg"
         }
       ]
     },
     "views": {
-      "github-issue-summary": [
+      "issue-digest": [
         {
-          "id": "github-issue-summary.issueSummaryView",
+          "id": "issue-digest.issueSummaryView",
           "name": "Issue Report",
           "type": "webview"
         }

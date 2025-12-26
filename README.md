@@ -1,6 +1,6 @@
-# github-issue-summary README
+# Issue Digest
 
-This is the README for your extension "github-issue-summary". After writing up a brief description, we recommend including the following sections.
+Automatically fetch, summarize, and generate comprehensive reports from GitHub repository issues using GitHub Copilot. Gain quick insights into customer feedback and project health.
 
 ## Features
 

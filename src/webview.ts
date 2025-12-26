@@ -40,7 +40,7 @@ function getNonce(): string {
 }
 
 export class IssueSummaryViewProvider implements vscode.WebviewViewProvider {
-	public static readonly viewType = 'github-issue-summary.issueSummaryView';
+	public static readonly viewType = 'issue-digest.issueSummaryView';
 
 	private view?: vscode.WebviewView;
 	private readonly disposables: vscode.Disposable[] = [];
