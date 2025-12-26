@@ -9,9 +9,6 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:github-issue-summary.generateIssueReport"
-  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -19,7 +16,25 @@
         "command": "github-issue-summary.generateIssueReport",
         "title": "GitHub Issue Summary: Generate Report"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "github-issue-summary",
+          "title": "Issue Summary",
+          "icon": "resources/activitybar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "github-issue-summary": [
+        {
+          "id": "github-issue-summary.issueSummaryView",
+          "name": "Issue Report",
+          "type": "webview"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
