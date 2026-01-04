@@ -29,15 +29,5 @@ Issue Digest leverages the power of **GitHub Copilot** to automatically fetch, a
 
 ## Requirements
 
-*   VS Code ^1.106.0
+*   VS Code ^1.107.0
 *   GitHub Copilot access
-
-## Release Notes
-
-### 0.0.1
-
-*   🎉 Initial release!
-*   Basic issue fetching and summarization.
-
-
-
