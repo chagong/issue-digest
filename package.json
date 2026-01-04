@@ -3,12 +3,21 @@
   "displayName": "Issue Digest",
   "description": "Automatically fetch, summarize, and generate comprehensive reports from GitHub repository issues using GitHub Copilot. Gain quick insights into customer feedback and project health.",
   "version": "0.0.1",
+  "publisher": "chagong",
   "engines": {
     "vscode": "^1.107.0"
   },
   "categories": [
     "Other"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chagong/issue-digest"
+  },
+  "homepage": "https://github.com/chagong/issue-digest",
+  "bugs": {
+    "url": "https://github.com/chagong/issue-digest"
+  },
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
