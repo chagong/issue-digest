@@ -2,7 +2,7 @@
   "name": "issue-digest",
   "displayName": "Issue Digest",
   "description": "Automatically fetch, summarize, and generate comprehensive reports from GitHub repository issues using GitHub Copilot. Gain quick insights into customer feedback and project health.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "publisher": "chagong",
   "engines": {
