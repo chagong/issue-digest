@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { fetchAllIssueCommentsText, fetchOpenIssuesForRepo, type GitHubIssue } from './github';
-import { runChat, selectDefaultChatModel, truncateForPrompt } from './lm';
+import { runChatWithUsage, selectDefaultChatModel, truncateForPrompt, type TokenUsage } from './lm';
 import { IssueSummaryViewProvider, type ExtensionProgressMessage } from './webview';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -27,6 +27,26 @@ type IssueAnalysis = {
 	url: string;
 	ask: string;
 };
+
+type UsageAccumulator = {
+	inputTokens: number;
+	outputTokens: number;
+	totalTokens: number;
+};
+
+function createUsageAccumulator(): UsageAccumulator {
+	return { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+}
+
+function addUsage(acc: UsageAccumulator, usage: TokenUsage): void {
+	acc.inputTokens += usage.inputTokens;
+	acc.outputTokens += usage.outputTokens;
+	acc.totalTokens += usage.totalTokens;
+}
+
+function formatUsage(acc: UsageAccumulator): string {
+	return `LLM tokens used: input ${acc.inputTokens}, output ${acc.outputTokens}, total ${acc.totalTokens}`;
+}
 
 function parseRepos(input: string): string[] {
 	return input
@@ -82,7 +102,13 @@ function percentFor(step: 'fetch' | 'summarize' | 'report', current?: number, to
 	return 80 + Math.round(20 * ratio);
 }
 
-async function summarizeIssue(model: vscode.LanguageModelChat, issue: GitHubIssue, commentsText: string, token: vscode.CancellationToken): Promise<string> {
+async function summarizeIssue(
+	model: vscode.LanguageModelChat,
+	issue: GitHubIssue,
+	commentsText: string,
+	token: vscode.CancellationToken,
+	usageAcc: UsageAccumulator
+): Promise<string> {
 	const title = truncateForPrompt(issue.title ?? '', 400);
 	const body = truncateForPrompt(issue.body ?? '', 6000);
 	const comments = truncateForPrompt(commentsText ?? '', 6000);
@@ -105,11 +131,18 @@ async function summarizeIssue(model: vscode.LanguageModelChat, issue: GitHubIssu
 		`Comments:${comments ? `\n${comments}` : ' (none)'}`,
 	].join('\n');
 
-	const result = await runChat(model, prompt, token);
-	return result || 'No summary produced.';
+	const result = await runChatWithUsage(model, prompt, token);
+	addUsage(usageAcc, result.usage);
+	return result.text || 'No summary produced.';
 }
 
-async function categorizeToReport(model: vscode.LanguageModelChat, analyses: IssueAnalysis[], repos: string[], token: vscode.CancellationToken): Promise<string> {
+async function categorizeToReport(
+	model: vscode.LanguageModelChat,
+	analyses: IssueAnalysis[],
+	repos: string[],
+	token: vscode.CancellationToken,
+	usageAcc: UsageAccumulator
+): Promise<string> {
 	const analysisText = analyses
 		.map(a => `Repo: ${a.repo} | Issue: ${a.number} | Url: ${a.url} | Ask: ${a.ask}`)
 		.join('\n');
@@ -141,8 +174,9 @@ async function categorizeToReport(model: vscode.LanguageModelChat, analyses: Iss
 		analysisText,
 	].join('\n');
 
-	const result = await runChat(model, prompt, token);
-	return result || 'No report produced.';
+	const result = await runChatWithUsage(model, prompt, token);
+	addUsage(usageAcc, result.usage);
+	return result.text || 'No report produced.';
 }
 
 async function generateIssueReport(): Promise<void> {
@@ -182,6 +216,7 @@ async function generateIssueReport(): Promise<void> {
 
 			progress.report({ message: 'Selecting language model…' });
 			const model = await selectDefaultChatModel();
+			const usageAcc = createUsageAccumulator();
 
 			progress.report({ message: 'Fetching issues…' });
 			const allIssues: GitHubIssue[] = [];
@@ -203,12 +238,12 @@ async function generateIssueReport(): Promise<void> {
 				const issue = allIssues[i];
 				progress.report({ message: `Summarizing ${issue.repo}#${issue.number} (${i + 1}/${allIssues.length})` });
 				const commentsText = await fetchAllIssueCommentsText(issue.commentsUrl, githubToken, token);
-				const ask = await summarizeIssue(model, issue, commentsText, token);
+				const ask = await summarizeIssue(model, issue, commentsText, token, usageAcc);
 				analyses.push({ repo: issue.repo, number: issue.number, url: issue.url, ask });
 			}
 
 			progress.report({ message: 'Generating categorized report…' });
-			const reportBody = await categorizeToReport(model, analyses, repos, token);
+			const reportBody = await categorizeToReport(model, analyses, repos, token, usageAcc);
 
 			const header = [
 				'# GitHub Issue Analysis Report',
@@ -229,6 +264,7 @@ async function generateIssueReport(): Promise<void> {
 			const doc = await vscode.workspace.openTextDocument(outputUri);
 			await vscode.window.showTextDocument(doc, { preview: false });
 			vscode.window.showInformationMessage(`Issue report generated: ${outputUri.fsPath}`);
+			vscode.window.showInformationMessage(formatUsage(usageAcc));
 		}
 	);
 }
@@ -253,6 +289,7 @@ async function generateIssueReportFromWebview(reposText: string, view: vscode.We
 	}
 
 	const cts = new vscode.CancellationTokenSource();
+	const usageAcc = createUsageAccumulator();
 	try {
 		postProgress(view, { type: 'progress', step: 'fetch', status: 'in-progress', message: 'Authenticating to GitHub…', percent: 0 });
 		const githubToken = await getGitHubToken();
@@ -298,13 +335,13 @@ async function generateIssueReportFromWebview(reposText: string, view: vscode.We
 				percent: percentFor('summarize', i + 1, allIssues.length),
 			});
 			const commentsText = await fetchAllIssueCommentsText(issue.commentsUrl, githubToken, cts.token);
-			const ask = await summarizeIssue(model, issue, commentsText, cts.token);
+			const ask = await summarizeIssue(model, issue, commentsText, cts.token, usageAcc);
 			analyses.push({ repo: issue.repo, number: issue.number, url: issue.url, ask });
 		}
 		postProgress(view, { type: 'progress', step: 'summarize', status: 'done', message: 'Summaries complete.', percent: 80 });
 
 		postProgress(view, { type: 'progress', step: 'report', status: 'in-progress', message: 'Generating categorized report…', percent: 85 });
-		const reportBody = await categorizeToReport(model, analyses, repos, cts.token);
+		const reportBody = await categorizeToReport(model, analyses, repos, cts.token, usageAcc);
 		postProgress(view, { type: 'progress', step: 'report', status: 'in-progress', message: 'Writing markdown report…', percent: 95 });
 
 		const header = [
@@ -326,7 +363,12 @@ async function generateIssueReportFromWebview(reposText: string, view: vscode.We
 
 		const doc = await vscode.workspace.openTextDocument(outputUri);
 		await vscode.window.showTextDocument(doc, { preview: false });
-		void view.webview.postMessage({ type: 'result', status: 'done', message: `Report generated: ${outputUri.fsPath}`, reportPath: outputUri.fsPath });
+		void view.webview.postMessage({
+			type: 'result',
+			status: 'done',
+			message: `Report generated: ${outputUri.fsPath}\n${formatUsage(usageAcc)}`,
+			reportPath: outputUri.fsPath,
+		});
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		postProgress(view, { type: 'progress', step: 'report', status: 'error', message: msg, percent: 0 });
